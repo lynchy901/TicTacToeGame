@@ -1,6 +1,8 @@
 /**
  * Created by nathan on 3/21/16.
  */
+
+//clicking in between squares causes an error
 var computer = function() {
     var scenarios = [];
     var finalComputerMove;
@@ -10,13 +12,18 @@ var computer = function() {
             return Math.floor(Math.random() * 9);
         },
         makeMove: function(space) {
-            if (self.checkIfExists().status) {
-                var scenario = self.checkIfExists().scenario;
+            var obj = self.checkIfExists();
+            if (obj.status) {
+                var scenario = obj.scenario;
 
-                if (scenario.finalMove.indexOf('x') > -1) {//this means the human player won
-                    rand = scenario.boardWithTurns.indexOf(scenario.finalMove);
-                    console.log("Going in spot " + rand + " because human won there last time");
+                rand = scenario.boardWithTurns.indexOf(scenario.finalMove);
+                if (scenario.finalMove.indexOf('x')) {
+                    console.log("Going in spot " + rand + " because I won there before");
+                } else {
+                    console.log("Going in spot " + rand + " because human won there before");
                 }
+
+
             } else {
                 if (isNaN(space)) {
                     var gamestring = gameboard.getGameString();
@@ -44,20 +51,20 @@ var computer = function() {
             }
             if (!flag) {
                 var finalMove = gameboard.getTurn() + (gameboard.getTurnNum() - 1);
-                scenarios.push({board: gameboard.getGameString(), boardWithTurns: gameboard.getGameArrayWithTurns(), finalMove: finalMove, finalComputerMove: finalComputerMove, frequency: 1});
+                var arr = []
+                for (var i = 0; i < gameboard.getGameArrayWithTurns().length; i++) {arr[i] = gameboard.getGameArrayWithTurns()[i]};
+                scenarios.push({board: gameboard.getGameString(), boardWithTurns: arr, finalMove: finalMove, finalComputerMove: finalComputerMove, frequency: 1});
             }
 
-            console.log(scenarios);
         },
         checkIfExists: function() {
             for (var i = 0; i < scenarios.length; i++) {
                 if (self.removeFinalMove(scenarios[i]) === gameboard.getGameString()) {
-                    alert("HERE");
                     console.log("This has happened before! " + i + " : " + gameboard.getGameString());
                     return {status: true, scenario: scenarios[i]};
                 }
             }
-            return false;
+            return {status:false};
         },
         removeFinalMove: function(str) { //Remove the winning move so that
 
@@ -73,7 +80,6 @@ var computer = function() {
                 newStr+= charArr[i];
             }
 
-            console.log(newStr);
             return newStr;
         }
     }

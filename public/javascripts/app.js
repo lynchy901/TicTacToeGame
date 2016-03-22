@@ -14,6 +14,7 @@ var gameboard = function() {
     var grid = ['-', '-', '-',
                 '-', '-', '-',
                 '-', '-', '-'];
+
     var gridWithTurns = ['-', '-', '-',
                         '-', '-', '-',
                         '-', '-', '-'];
@@ -46,8 +47,9 @@ var gameboard = function() {
                 grid[index] = self.getTurn();
                 gridWithTurns[index] = self.getTurn() + turnNum;
                 target.innerText = self.getTurn();
+                turnNum += 1;
             }
-            turnNum += 1;
+
         },
         checkWin: function() {
             var flag = false;
@@ -105,8 +107,10 @@ var gameboard = function() {
         reset: function() {
             turn = 'x';
             turnNum = 0;
+
             for (var i = 0; i < 9; i++) {
                 grid[i] = '-';
+                gridWithTurns[i] = '-';
                 document.getElementById(i + "").innerText = "";
             }
         },
@@ -120,16 +124,29 @@ var computer = computer();
 
 //click listener for human player use
 document.getElementById("gamegrid").onclick = function(e) {
+    var cont = true;
     if (gameboard.getTurn() === 'x') {
-        if (e.target.id !== "gamegrid" && e.target.innerText === "") {
+        if (e.target.id !== "gamegrid" && e.target.innerText === "" && !(e.target.id.indexOf("row") > -1) && e.target.id != "" && e.target.id != null) {
             gameboard.setSpace(parseInt(e.target.id), e.target);
-            if (gameboard.checkWin === "tie") {
-                alert("It's a tie!");
+            if (gameboard.checkWin() == "tie") {
+                console.log("It's a tie!");
+                cont = false;
                 computer.addGame();
                 gameboard.reset();
             } else {
                 if (gameboard.checkWin()) {
-                    alert(gameboard.getTurn() + " is the winner!");
+                    console.log((gameboard.getTurn() + " is the winner!"));
+                    cont = false;
+                    computer.addGame();
+                    gameboard.reset();
+                } else {
+                    gameboard.toggleTurn();
+                }
+            }
+            if (cont) {
+                computer.makeMove();
+                if (gameboard.checkWin() ) {
+                    console.log(gameboard.getTurn() + " is the winner");
                     computer.addGame();
                     gameboard.reset();
                 } else {
@@ -137,16 +154,10 @@ document.getElementById("gamegrid").onclick = function(e) {
                 }
             }
         }
-    } else {
-        computer.makeMove();
-        if (gameboard.checkWin() ) {
-            alert(gameboard.getTurn() + " is the winner");
-            computer.addGame();
-            gameboard.reset();
-        } else {
-            gameboard.toggleTurn();
-        }
     }
+
+
+
 }
 
 
