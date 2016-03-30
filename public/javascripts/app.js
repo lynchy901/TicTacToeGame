@@ -40,13 +40,13 @@ var gameboard = function() {
         getGameArrayWithTurns: function() {
             return gridWithTurns;
         },
-        setSpace: function(index, target) {
+        setSpace: function(index) {
             if (!(index >= 0 && index <= 8)) {
                 alert("ERROR: Index out of bounds");
             } else {
                 grid[index] = self.getTurn();
                 gridWithTurns[index] = self.getTurn() + turnNum;
-                target.innerText = self.getTurn();
+                document.getElementById(index + "").innerText = self.getTurn();
                 turnNum += 1;
             }
 
@@ -92,7 +92,7 @@ var gameboard = function() {
             }
         },
         setTurn: function (newTurn) {
-            if (newTurn !== "x" || turn !== 'o') { // NaN is the only value not equal to itself
+            if (newTurn != 'x' && turn != 'o') { // NaN is the only value not equal to itself
                 alert("ERROR: must be x or o");
             } else {
                 turn = newTurn;
@@ -122,43 +122,103 @@ var gameboard = function() {
 var gameboard = gameboard();
 var computer = computer();
 
-//click listener for human player use
-document.getElementById("gamegrid").onclick = function(e) {
-    var cont = true;
-    if (gameboard.getTurn() === 'x') {
-        if (e.target.id !== "gamegrid" && e.target.innerText === "" && !(e.target.id.indexOf("row") > -1) && e.target.id != "" && e.target.id != null) {
-            gameboard.setSpace(parseInt(e.target.id), e.target);
-            if (gameboard.checkWin() == "tie") {
-                console.log("It's a tie!");
-                cont = false;
-                computer.addGame();
-                gameboard.reset();
+//document.getElementById("gamegrid").onclick = function(e) {
+//    var cont = true;
+//    if (gameboard.getTurn() === 'x') {
+//        if (e.target.id !== "gamegrid" && e.target.innerText === "" && !(e.target.id.indexOf("row") > -1) && e.target.id != "" && e.target.id != null) {
+//            //Go where the human clicked
+//            gameboard.setSpace(parseInt(e.target.id), e.target);
+//            var result = gameboard.checkWin();
+//            if (result != "tie" && result != true) {
+//                gameboard.toggleTurn();
+//            } else {
+//                if (result == true) {
+//                    cont = false;
+//                    console.log(gameboard.getTurn() + " is the winner!");
+//                    computer.addGame();
+//                } else {
+//                    console.log("It's a tie!");
+//                }
+//                gameboard.reset();
+//            }
+//
+//            //If the game isn't over the computer should make it's move
+//            if (cont) {
+//                computer.makeMove();
+//                if (gameboard.checkWin() ) {
+//                    console.log(gameboard.getTurn() + " is the winner");
+//                    computer.addGame();
+//                    gameboard.reset();
+//                } else {
+//                    gameboard.toggleTurn();
+//                }
+//            }
+//        }
+//    }
+//}
+
+
+//simulate i games
+    //Learning AI is x
+    var xwins = 0;
+
+    //random AI is y
+    var owins = 0;
+
+    //number of ties
+    var tie = 0;
+
+    //number of games;
+    var gameNum = 0;
+    var counter = 0;
+    gameboard.setTurn('x');
+    while (counter < 10000) {
+
+        if (gameboard.getTurn() == 'o') {
+            //dumbAI
+            gameboard.setSpace(computer.makeRandomMove());
+        } else {
+            //smartAI
+            computer.makeMove();
+        }
+
+        var result = gameboard.checkWin();
+        var flag = true;
+
+        if (result == "tie") {
+            flag = false;
+            tie++;
+        } else if (result == true) {
+            flag = false;
+            if (gameboard.getTurn() == 'x') {
+                xwins++;
+            } else if (gameboard.getTurn() == 'o') {
+                owins++;
             } else {
-                if (gameboard.checkWin()) {
-                    console.log((gameboard.getTurn() + " is the winner!"));
-                    cont = false;
-                    computer.addGame();
-                    gameboard.reset();
-                } else {
-                    gameboard.toggleTurn();
-                }
+                alert("What happened? " + gameboard.getTurn());
             }
-            if (cont) {
-                computer.makeMove();
-                if (gameboard.checkWin() ) {
-                    console.log(gameboard.getTurn() + " is the winner");
-                    computer.addGame();
-                    gameboard.reset();
-                } else {
-                    gameboard.toggleTurn();
-                }
-            }
+        } else {
+            flag = true;
+        }
+
+        if (flag == false) {// game over. Restart
+            computer.addGame();
+            gameNum++;
+            counter++;
+            gameboard.reset();
+        } else {
+            gameboard.toggleTurn();
+        }
+
+        if (counter % 1000 == 0) {
+            console.log("I'm alive!");
         }
     }
+    console.log("x won " + xwins + " times out of " + gameNum + " games");
+    console.log("o won " + owins + " times out of " + gameNum + " games");
+    console.log("there were " + tie + " ties");
+    console.log("The computer player that was on x recognized " + computer.getLearned() + " Scenarios during the games");
 
 
-
-}
-
-
+//console.log(computer.getScenarios());
 

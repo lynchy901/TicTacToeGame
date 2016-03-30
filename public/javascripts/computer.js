@@ -6,40 +6,49 @@
 var computer = function() {
     var scenarios = [];
     var finalComputerMove;
+    var learned = 0;
 
     var self = {
+        getLearned: function() {
+            return learned;
+        },
+        getScenarios: function() {
+            return scenarios;
+        },
         getRand: function() {
             return Math.floor(Math.random() * 9);
         },
-        makeMove: function(space) {
+        makeRandomMove: function() {
+            var gamestring = gameboard.getGameString();
+            var rand = self.getRand();
+            if (gamestring.charAt(rand) !== '-') {
+                while (gamestring.charAt(rand) !== '-') {
+                    rand = self.getRand();
+                }
+            }
+            return rand;
+        },
+        makeMove: function() {
             var obj = self.checkIfExists();
             if (obj.status) {
                 var scenario = obj.scenario;
+                var space;
 
-                rand = scenario.boardWithTurns.indexOf(scenario.finalMove);
+                space = scenario.boardWithTurns.indexOf(scenario.finalMove);
                 if (scenario.finalMove.indexOf('x')) {
-                    console.log("Going in spot " + rand + " because I won there before");
+                    print("Going in spot " + space + " because I won there before");
                 } else {
-                    console.log("Going in spot " + rand + " because human won there before");
+                    print("Going in spot " + space + " because human won there before");
                 }
+                learned++;
 
 
             } else {
-                if (isNaN(space)) {
-                    var gamestring = gameboard.getGameString();
-                    var rand = self.getRand();
-                    if (gamestring.charAt(rand) !== '-') {
-                        while (gamestring.charAt(rand) !== '-') {
-                            rand = self.getRand();
-                        }
-                    }
-                } else {
-                    rand = space;
-                }
+                space = self.makeRandomMove();
             }
 
             finalComputerMove = 'o' + gameboard.getTurnNum();
-            gameboard.setSpace(rand,document.getElementById(rand + ""));
+            gameboard.setSpace(space);
         },
         addGame: function() {
             var flag = false;
@@ -60,7 +69,6 @@ var computer = function() {
         checkIfExists: function() {
             for (var i = 0; i < scenarios.length; i++) {
                 if (self.removeFinalMove(scenarios[i]) === gameboard.getGameString()) {
-                    console.log("This has happened before! " + i + " : " + gameboard.getGameString());
                     return {status: true, scenario: scenarios[i]};
                 }
             }
